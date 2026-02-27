@@ -1,82 +1,98 @@
-# ClawReceipt 🧾
+# ClawReceipt
 
-**เก็บใบเสร็จอัตโนมัติ สำหรับ OpenClaw**
+`ClawReceipt` 🧾 is a specialized tool for OpenClaw to automatically capture, process, and manage receipts and financial data using a Retro Neon CLI & TUI.
 
-เครื่องมือตัวช่วยสำหรับจัดการใบเสร็จ ข้อมูลการใช้จ่าย และแจ้งเตือน Budget ถูกออกแบบมาเพื่อทำงานร่วมกับ AI Agent (OpenClaw) โดยเฉพาะ ด้วยระบบหน้าบ้านแบบ CLI/TUI ที่ตกแต่งสไตล์ Retro Neon สุดเท่ (ClawFlow)
+Primary command: `run.py` (through Python)
 
-## 📌 Features
+## What It Does
 
-- **Data Extractor Ready**: ส่งรูปแบบพารามิเตอร์มารับจบ บันทึกข้อมูล (วัน/เวลา/ร้าน/ยอดเงิน/หมวดหมู่)
-- **Auto Budget Alert**: ตั้ง Budget รายเดือน ถ้ายอดบิลใช้จ่ายไหนทะลุงบระบบจะแจ้งเตือน `Exceeded Budget!` ทันที
-- **Terminal UI (TUI)**: แดชบอร์ดสำหรับเรียกดูใบเสร็จย้อนหลังแบบตารางสวยงาม
-- **Exporters**: สั่ง Export เป็น `CSV` และ `Excel` สำหรับส่งให้ฝ่ายบัญชีใช้งานต่อ
-- **OpenClaw Skill Compliant**: มาพร้อมไฟล์ `SKILL.md` รูปแบบมาตรฐานสำหรับให้ OpenClaw Agent โหลดโมดูลเข้าไปใช้งาน
+- Extracts receipt details (Date, Time, Store, Amount, Category) from OpenClaw via CLI.
+- Automatically tracks and monitors spending against a customized monthly budget.
+- Triggers `Exceeded Budget!` alerts when total expenses cross the threshold.
+- Provides a stunning Terminal UI (TUI) to browse and analyze receipts history.
+- Exports receipt data seamlessly to `CSV` or `Excel` formats.
+- Integrates flawlessly as an OpenClaw Skill via `SKILL.md`.
 
-## 📂 Project Structure
+## Requirements
 
-```text
-ClawReceipt/
-├── data/                    # โฟลเดอร์เก็บฐานข้อมูล SQLite อัตโนมัติ (receipts.db)
-├── src/                     # โค้ด Backend และ Logic ของโปรเจกต์
-│   ├── cli.py               # โค้ดรับคำสั่ง CLI
-│   ├── db.py                # ระบบติดต่อ Database SQLite
-│   ├── styling.py           # ระบบตกแต่งสีสัน Terminal UI (Rich)
-│   └── tui.py               # หน้าจอ Visual Terminal Interface
-├── SKILL.md                 # 🔑 คู่มือ OpenClaw สำหรับให้ AI เรียกใช้ Tool นี้
-├── requirements.txt         # ไฟล์รวม Packages Dependencies
-└── run.py                   # 🚀 ตัวรันโปรแกรมหลัก (Entry Point)
-```
+- Python `>=3.10`
+- Windows (for specific Unicode CLI setup) or Linux/macOS
+- OpenClaw CLI (`openclaw`) for triggering the skill
 
-## 🛠️ Installation & Setup
+## Install
 
-1. **สร้างและรัน Virtual Environment:**
+Clone the repository and prepare your virtual environment:
 
 ```bash
+git clone https://github.com/OpenKrab/ClawReceipt.git
+cd ClawReceipt
 python -m venv venv
-.\venv\Scripts\activate   # สำหรับ Windows
-```
-
-2. **ติดตั้ง Dependency:**
-
-```bash
+.\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 🚀 Usage Guide
+## Quick Start
 
-ทุกคำสั่งให้เรียกผ่าน `run.py`
+Initialize your budget (e.g. 5,000 Baht):
 
-### 1. บันทึกใบเสร็จ (สำหรับ OpenClaw ใช้ยิงข้อมูล)
+```bash
+python run.py budget --set 5000
+```
+
+Add a new receipt (typically triggered via OpenClaw):
 
 ```bash
 python run.py add --date "2026-02-27" --time "15:30:00" --store "Seven Eleven" --amount 120.50 --category "อาหาร"
 ```
 
-### 2. ตั้งค่างบประมาณ / ตรวจเช็ค Budget
-
-```bash
-# กำหนด Budget 
-python run.py budget --set 5000
-
-# เช็คยอดใช้จ่ายรวมปัจจุบัน 
-python run.py budget
-```
-
-### 3. ดูตารางใบเสร็จทั้งหมด (CLI Format)
-
-```bash
-python run.py list
-```
-
-### 4. เปิดหน้า Dashboard TUI สุดหรู (แบบมี UI)
+Launch the interactive Terminal Dashboard:
 
 ```bash
 python run.py tui
 ```
 
-> ในหน้านี้สามารถกดปุ่ม **Export CSV** หรือ **Export Excel** ได้เลย
+## Main Commands
 
-## 🤖 สำหรับ OpenClaw Agent
+```bash
+# Add a new receipt record
+python run.py add --date <YYYY-MM-DD> --time <HH:MM:SS> --store <Name> --amount <Amount> --category <Category>
 
-- ตรวจสอบ `SKILL.md` สำหรับคู่มือในการใช้งานโมดูล
-- การใช้คำสั่งในฐานะ AI ห้ามเรียกใช้เข้าโหมด `tui` เพราะตัวคำสั่งจะล็อก Shell ของคุณ
+# List all receipts in the terminal archive
+python run.py list
+
+# Open interactive TUI Dashboard
+python run.py tui
+
+# Set overall monthly budget
+python run.py budget --set <Amount>
+
+# Check current spent vs budget status
+python run.py budget
+
+# Silent budget alert check (exit 1 if exceeded, 0 if within)
+python run.py alert
+```
+
+## Paths Used by Default
+
+- SQLite Database path: `data/receipts.db`
+- Source Code: `src/`
+
+## For OpenClaw Agents
+
+- Check `SKILL.md` for proper instructions on integrating standard CLI triggers into OpenClaw's context.
+- Avoid running the `tui` command as an automated agent, as it blocks the terminal input indefinitely. Use `add`, `budget`, or `list` for CI/CD or Agentic behavior.
+
+## Development
+
+```bash
+pip install -r requirements.txt
+# Test the database
+python src/db.py
+# Test the components
+python run.py list
+```
+
+## License
+
+MIT
