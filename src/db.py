@@ -52,6 +52,16 @@ def init_db():
                     value TEXT
                  )''')
 
+    # Goals table (for savings targets)
+    c.execute('''CREATE TABLE IF NOT EXISTS goals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    target_amount REAL NOT NULL,
+                    current_amount REAL DEFAULT 0,
+                    target_date TEXT,
+                    created_at TEXT DEFAULT (datetime('now','localtime'))
+                 )''')
+
     # Category learning table (for smart categorization)
     c.execute('''CREATE TABLE IF NOT EXISTS category_learn (
                     store_pattern TEXT PRIMARY KEY,
@@ -67,9 +77,52 @@ def init_db():
     c.execute("CREATE INDEX IF NOT EXISTS idx_receipts_date ON receipts(date)")
     c.execute("CREATE INDEX IF NOT EXISTS idx_receipts_store ON receipts(store)")
     c.execute("CREATE INDEX IF NOT EXISTS idx_receipts_category ON receipts(category)")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_goals_name ON goals(name)")
 
     conn.commit()
     conn.close()
+
+
+# ==============================
+# 🎯 GOALS MANAGEMENT
+# ==============================
+
+def add_goal(name, target_amount, target_date=None, current_amount=0):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute(
+        "INSERT INTO goals (name, target_amount, target_date, current_amount) VALUES (?, ?, ?, ?)",
+        (name, target_amount, target_date, current_amount)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_goals():
+    conn = _connect()
+    df = pd.read_sql_query("SELECT * FROM goals ORDER BY created_at DESC", conn)
+    conn.close()
+    return df
+
+
+def delete_goal(goal_id):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute("DELETE FROM goals WHERE id=?", (goal_id,))
+    success = c.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
+
+
+def update_goal_progress(goal_id, amount_added):
+    conn = _connect()
+    c = conn.cursor()
+    c.execute("UPDATE goals SET current_amount = current_amount + ? WHERE id=?", (amount_added, goal_id))
+    success = c.rowcount > 0
+    conn.commit()
+    conn.close()
+    return success
 
 
 # ==============================

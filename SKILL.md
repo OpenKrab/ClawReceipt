@@ -90,7 +90,16 @@ python run.py stores                        # Store spending leaderboard
 python run.py stores --month "2026-03"      # Monthly store ranking
 ```
 
-### 7) AI Insights
+### 9) Manage Savings Goals
+
+```bash
+python run.py goal                          # List all goals with progress bars
+python run.py goal --add "New Phone" --target 35000 --date "2026-12-31"  # Add goal
+python run.py goal --save 2000 --to 1       # Add 2000 ฿ to goal #1
+python run.py goal --delete 1               # Delete goal #1
+```
+
+### 10) AI Insights & Anomalies
 
 ```bash
 python run.py insights
@@ -98,14 +107,15 @@ python run.py insights
 
 This generates intelligent observations including:
 
-- Budget health status
-- Spending acceleration warnings
-- Category dominance alerts
-- Recurring expense summaries
-- Month-over-month comparisons
-- Large expense notifications
+- **Goal Progress**: Tracking and proactive saving tips to reach goals faster
+- **Anomaly Detection**: Price spikes (unusually high spending for a category/store) and Frequency anomalies (abnormally frequent visits to a store)
+- **Budget Health**: Current status and trajectory
+- **Spending acceleration** warnings
+- **Category dominance** alerts
+- **Recurring expense** summaries
+- **Month-over-month** comparisons
 
-### 8) Export Data
+### 11) Export Data
 
 ```bash
 python run.py export csv                    # Export to CSV

@@ -127,6 +127,29 @@ class InsightsPanel(Static):
         self.update("\n".join(lines))
 
 
+class GoalsPanel(Static):
+    """Savings goals panel."""
+
+    def update_goals(self):
+        from db import get_goals
+        df = get_goals()
+        if df.empty:
+            self.update("[dim]No goals set.\nUse: goal --add <name> --target <amt>[/dim]")
+            return
+
+        lines = []
+        for _, row in df.head(3).iterrows():
+            target = float(row['target_amount'])
+            current = float(row['current_amount'])
+            pct = (current / target * 100) if target > 0 else 0
+            bar_len = 15
+            fill = min(int(pct / 100 * bar_len), bar_len)
+            bar = f"[green]{'█' * fill}[/][dim]{'░' * (bar_len - fill)}[/]"
+            lines.append(f"🎯 [b]{row['name']}[/]\n{bar} {pct:.0f}%")
+
+        self.update("\n".join(lines))
+
+
 class ClawReceiptTUI(App):
     CSS = """
     Screen {
@@ -137,21 +160,20 @@ class ClawReceiptTUI(App):
         layout: horizontal;
         margin: 0 1;
     }
-    #budget-panel {
+    #budget-panel, #stats-panel, #goals-panel {
         width: 1fr;
         padding: 1;
         background: $boost;
-        margin: 0 1 0 0;
+        margin: 0 0.5;
         border: solid $accent;
         height: auto;
     }
-    #stats-panel {
-        width: 1fr;
-        padding: 1;
-        background: $boost;
-        margin: 0 0 0 1;
-        border: solid $accent;
-        height: auto;
+    #budget-panel {
+        margin-left: 0;
+    }
+    #goals-panel {
+        margin-right: 0;
+        border-color: $success;
     }
     #insights-panel {
         padding: 1;
@@ -211,6 +233,8 @@ class ClawReceiptTUI(App):
             yield self.budget_gauge
             self.stats_panel = StatsPanel(id="stats-panel")
             yield self.stats_panel
+            self.goals_panel = GoalsPanel(id="goals-panel")
+            yield self.goals_panel
 
         with Container(id="insights-panel"):
             yield Label("💡 [b]Smart Insights[/b]")
@@ -274,6 +298,7 @@ class ClawReceiptTUI(App):
 
         df = search_receipts_db(query)
         self.table.clear()
+        # Header columns: ID, Date, Time, Store, Amount, Category, Tags
         rows = []
         for _, row in df.iterrows():
             tags = row.get('tags', '')
@@ -317,6 +342,7 @@ class ClawReceiptTUI(App):
     def populate_data(self) -> None:
         self.budget_gauge.update_gauge()
         self.stats_panel.update_stats()
+        self.goals_panel.update_goals()
         self.insights.update_insights()
         self.table.clear()
 

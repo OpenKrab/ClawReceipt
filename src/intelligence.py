@@ -492,7 +492,113 @@ def generate_insights(df, budget: float, current_month: str) -> list:
                 "severity": "low"
             })
 
+    # Insight 7: Smart Anomaly Detection
+    anomalies = detect_anomalies(df, current_month)
+    for anomaly in anomalies:
+        insights.append({
+            "type": "warning",
+            "icon": "🚨",
+            "message": anomaly["message"],
+            "severity": anomaly["severity"]
+        })
+
+    # Insight 8: Goal Progress Analysis
+    from db import get_goals
+    goals = get_goals()
+    if not goals.empty:
+        for _, goal in goals.iterrows():
+            target = float(goal['target_amount'])
+            current = float(goal['current_amount'])
+            pct = (current / target * 100) if target > 0 else 0
+            
+            if pct >= 100:
+                insights.append({
+                    "type": "success",
+                    "icon": "🎉",
+                    "message": f"GOAL REACHED! You've achieved your '{goal['name']}' target!",
+                    "severity": "high"
+                })
+            else:
+                insights.append({
+                    "type": "info",
+                    "icon": "🎯",
+                    "message": f"Goal Progress: '{goal['name']}' is {pct:.1f}% complete ({current:,.0f}/{target:,.0f} ฿).",
+                    "severity": "low"
+                })
+
+                # Savings Suggestion for non-essential categories
+                if not month_df.empty:
+                    food_df = month_df[month_df['category'] == 'Food']
+                    if not food_df.empty and len(food_df) >= 3:
+                        avg_visit = food_df['amount'].mean()
+                        potential_save = avg_visit * 3
+                        if current + potential_save <= target:
+                            insights.append({
+                                "type": "tip",
+                                "icon": "💡",
+                                "message": f"Saving Tip: Skip 3 'Food' visits to add ~{potential_save:,.0f} ฿ to your '{goal['name']}' goal!",
+                                "severity": "low"
+                            })
+
     return insights
+
+
+# ==============================
+# 🚨 ANOMALY DETECTION ENGINE
+# ==============================
+
+def detect_anomalies(df, current_month: str) -> list:
+    """
+    Detect unusual spending behavior (price spikes or high frequency).
+    """
+    if df.empty:
+        return []
+
+    anomalies = []
+    month_df = df[df['date'].str.startswith(current_month)].copy()
+    hist_df = df[~df['date'].str.startswith(current_month)].copy()
+
+    if month_df.empty:
+        return []
+
+    # 1) Category-based Price Anomalies
+    for category in month_df['category'].unique():
+        month_cat = month_df[month_df['category'] == category]
+        hist_cat = hist_df[hist_df['category'] == category]
+
+        if hist_cat.empty or len(hist_cat) < 3:
+            continue
+
+        hist_avg = hist_cat['amount'].mean()
+        hist_std = hist_cat['amount'].std()
+        
+        # Use simple threshold or Z-score (std)
+        threshold = max(hist_avg * 2.0, hist_avg + (2.5 * hist_std))
+
+        for _, row in month_cat.iterrows():
+            if row['amount'] > threshold:
+                anomalies.append({
+                    "message": f"Unusual spend in '{category}': {row['store']} at {row['amount']:,.2f} ฿ is much higher than your average for this category ({hist_avg:,.2f} ฿).",
+                    "severity": "high"
+                })
+
+    # 2) Visit Frequency Anomalies
+    store_counts_month = month_df['store'].value_counts()
+    store_counts_hist = hist_df['store'].value_counts()
+    
+    # Check if hist covers multiple months to normalize
+    hist_months = len(hist_df['date'].str[:7].unique())
+    if hist_months >= 2:
+        for store, count in store_counts_month.items():
+            if store in store_counts_hist:
+                avg_monthly_visits = store_counts_hist[store] / hist_months
+                if count > max(avg_monthly_visits * 2.5, 5):
+                    anomalies.append({
+                        "message": f"High frequency: You've visited '{store}' {count} times this month — way more than your usual average ({avg_monthly_visits:.1f} visits/mo).",
+                        "severity": "medium"
+                    })
+
+    return anomalies
 
 
 # ==============================

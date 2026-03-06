@@ -124,6 +124,15 @@ def main():
     p_stores = subparsers.add_parser("stores", help="All-time store ranking")
     p_stores.add_argument("--month", help="Filter by month (YYYY-MM)")
 
+    # ── goal ──
+    p_goal = subparsers.add_parser("goal", help="Manage savings goals")
+    p_goal.add_argument("--add", help="Name of the goal")
+    p_goal.add_argument("--target", type=float, help="Target amount")
+    p_goal.add_argument("--date", help="Target date (YYYY-MM-DD)")
+    p_goal.add_argument("--save", type=float, help="Add money to a goal")
+    p_goal.add_argument("--to", type=int, help="Goal ID for --save")
+    p_goal.add_argument("--delete", type=int, help="Delete goal by ID")
+
     # ── export ──
     p_export = subparsers.add_parser("export", help="Export data to CSV or Excel")
     p_export.add_argument("format", choices=["csv", "excel"], help="Export format")
@@ -136,9 +145,64 @@ def main():
     now_time = datetime.now().strftime("%H:%M:%S")
 
     # ════════════════════════════════════
-    # 📝 ADD
+    # 🎯 GOAL
     # ════════════════════════════════════
-    if args.command == "add":
+    if args.command == "goal":
+        if args.add:
+            if not args.target:
+                print_error("Please specify --target amount for the goal.")
+                return
+            from db import add_goal
+            add_goal(args.add, args.target, args.date)
+            print_banner("New Goal Created")
+            print_success(f"Goal '[bold]{args.add}[/]' set for [bold yellow]{args.target:,.2f} ฿[/]")
+            if args.date:
+                print_info(f"Target date: {args.date}")
+        
+        elif args.save:
+            if not args.to:
+                print_error("Please specify goal ID with --to <id>")
+                return
+            from db import update_goal_progress
+            if update_goal_progress(args.to, args.save):
+                print_success(f"Saved [bold]{args.save:,.2f} ฿[/] to goal #{args.to}!")
+            else:
+                print_error(f"Goal #{args.to} not found.")
+
+        elif args.delete:
+            from db import delete_goal
+            if delete_goal(args.delete):
+                print_success(f"Goal #{args.delete} deleted.")
+            else:
+                print_error(f"Goal #{args.delete} not found.")
+
+        else:
+            from db import get_goals
+            df = get_goals()
+            print_banner("🎯 Savings Goals")
+            
+            if df.empty:
+                print_info("No goals set yet. Use --add \"Car\" --target 500000")
+                return
+
+            for _, row in df.iterrows():
+                target = float(row['target_amount'])
+                current = float(row['current_amount'])
+                pct = (current / target * 100) if target > 0 else 0
+                
+                bar_len = 30
+                fill = min(int(pct / 100 * bar_len), bar_len)
+                bar = f"[green]{'█' * fill}[/][dim]{'░' * (bar_len - fill)}[/]"
+                
+                console.print(f"\n  [bold cyan]#{row['id']} {row['name']}[/]")
+                console.print(f"  {bar} {pct:.1f}%")
+                console.print(f"  [dim]Progress:[/][bold yellow] {current:,.2f}[/] / [bold]{target:,.2f} ฿[/]")
+                if row['target_date']:
+                    console.print(f"  [dim]Target Date: {row['target_date']}[/]")
+            
+            console.print()
+
+    elif args.command == "add":
         print_banner("Recording New Receipt")
 
         # Smart auto-categorize if not provided
