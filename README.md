@@ -146,58 +146,16 @@ python run.py tui                      # Open interactive dashboard
 ### ⚡ Quick Add (Auto-Category)
 
 ```bash
-python run.py quick "Seven Eleven" 85.50
+python run.py quick "Grab" 150
+python run.py quick "Starbucks" 165
+python run.py quick "Lazada" 890 --tags "gadget" --notes "USB-C cable"
 ```
 
-```
-  ✓ Saved! #1 — Seven Eleven: 85.50 ฿ [Food]
-  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 86/8,000 ฿ (1%)
-```
+> Category is auto-detected from the store name — `Grab → Transport`, `Starbucks → Food`, `Lazada → Shopping`!
 
-> Category `Food` detected automatically from store name "Seven Eleven" — no `--category` needed!
-
-### 📝 Standard Add with Tags & Notes
-
-```bash
-python run.py add --date "2026-03-06" --store "Lazada" --amount 890 --notes "USB-C cable" --tags "gadget"
-```
-
-```
-  ℹ Auto-detected category: Shopping
-  ✅ Receipt Saved
-  ● ID:       8
-  ● Store:    Lazada
-  ● Amount:   890.00 ฿
-  ● Category: Shopping
-  ● Notes:    USB-C cable
-  ● Tags:     gadget
-```
-
-### 💰 Budget Status with Prediction
-
-```bash
-python run.py budget
-```
-
-```
-┌──────────────────────────────────────────────────────────┐
-│ Budget Status: 2026-03                                   │
-└──────────────────────────────────────────────────────────┘
-  ● Monthly Budget: 8,000.00 ฿
-  ● Total Spent:    1,290.50 ฿
-  ● Remaining:      6,709.50 ฿
-
-  ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 16.1%
-  ✓ On track! 👍
-
-┌──────────────────────────────────────────────────────────┐
-│ 🔮 Prediction                                            │
-└──────────────────────────────────────────────────────────┘
-  ● Daily Rate:        215.08 ฿/day
-  ● Projected Total:   6,667.58 ฿
-  ● Safe Daily Limit:  268.38 ฿/day
-  ✓ Projected to stay under budget by 1,332 ฿
-```
+<p align="center">
+  <img src="/assets/quick_add.png" alt="Quick Add Example" width="700">
+</p>
 
 ### 📊 Category Summary
 
@@ -205,17 +163,11 @@ python run.py budget
 python run.py summary
 ```
 
-```
-                     Category Breakdown (2026-03)
-╔══════════════╤══════════╤═══════════════╤════════╤══════════════════════╗
-║ Category     │ Receipts │        Amount │  Share │ Bar                  ║
-╟──────────────┼──────────┼───────────────┼────────┼──────────────────────╢
-║ Shopping     │    1     │      890.00 ฿ │  69.0% │ █████████████░░░░░░░ ║
-║ Food         │    2     │      250.50 ฿ │  19.4% │ ███░░░░░░░░░░░░░░░░ ║
-║ Transport    │    1     │      150.00 ฿ │  11.6% │ ██░░░░░░░░░░░░░░░░░ ║
-╚══════════════╧══════════╧═══════════════╧════════╧══════════════════════╝
-  Total: 1,290.50 ฿
-```
+> Visual breakdown of all spending by category with progress bars and percentages.
+
+<p align="center">
+  <img src="/assets/summary.png" alt="Summary Example" width="700">
+</p>
 
 ### 🔮 Predict End-of-Month
 
@@ -223,23 +175,11 @@ python run.py summary
 python run.py predict
 ```
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ Current Status                                           │
-└──────────────────────────────────────────────────────────┘
-  ● Days Elapsed:   6 / 31
-  ● Days Remaining: 25
-  ● Current Spent:  1,290.50 ฿
-  ● Daily Rate:     215.08 ฿/day
+> Forecasts your total spending by month-end based on your current daily rate. Shows safe daily spending limit to stay within budget.
 
-┌──────────────────────────────────────────────────────────┐
-│ 🔮 Projection                                            │
-└──────────────────────────────────────────────────────────┘
-  ● Predicted End-of-Month: 6,667.58 ฿
-  ● Budget:                 8,000.00 ฿
-  ● Safe Daily Limit:       268.38 ฿/day
-  ✓ On track! Projected to stay under budget by 1,332 ฿
-```
+<p align="center">
+  <img src="/assets/predict.png" alt="Predict Example" width="700">
+</p>
 
 ### 🔍 Search
 
@@ -247,15 +187,11 @@ python run.py predict
 python run.py search "Starbucks"
 ```
 
-```
-               Results for "Starbucks"
+> Full-text search across store names, categories, notes, tags, and dates.
 
-  ID   Date         Store       Amount   Category   Notes
- ─────────────────────────────────────────────────────────
-  6    2026-03-06   Starbucks   165.00   Food
-
-  1 result(s) found
-```
+<p align="center">
+  <img src="/assets/search.png" alt="Search Example" width="700">
+</p>
 
 ### 💡 Smart Insights
 
@@ -263,68 +199,11 @@ python run.py search "Starbucks"
 python run.py insights
 ```
 
-```
-  📊 Budget at 16%. On track for this month.
-  💡 Safe to spend up to 268 ฿/day for the remaining 25 days.
-  📌 'Shopping' dominates your spending (69% of total). Consider diversifying.
-  📉 Great job! Spending is down 59% compared to 2026-02.
-  💰 Single large expense: Lazada at 890 ฿ (69% of monthly total).
+> AI-powered analysis of your spending habits — budget warnings, recurring expenses, month-over-month changes, and actionable advice.
 
-  ℹ 5 insight(s) generated for 2026-03
-```
-
-### ⚖️ Compare Two Months
-
-```bash
-python run.py compare "2026-02" "2026-03"
-```
-
-```
-                      Month Comparison
-╔═══════════════╤═══════════════╤═══════════════╤═══════════════════════════╗
-║ Metric        │       2026-02 │       2026-03 │                   Change ║
-╟───────────────┼───────────────┼───────────────┼───────────────────────────╢
-║ Total Spent   │    3,150.00 ฿ │    1,290.50 ฿ │  🔻 1,859.50 ฿ (-59.0%) ║
-║ Receipts      │             8 │             4 │                       -4 ║
-║ Avg/Receipt   │      393.75 ฿ │      322.63 ฿ │                          ║
-╚═══════════════╧═══════════════╧═══════════════╧═══════════════════════════╝
-  ✓ Spending decreased by 59% 🎉
-```
-
-### 🔁 Recurring Detection
-
-```bash
-python run.py recurring
-```
-
-```
-                       Recurring Expenses
-╭──────────────┬──────────┬────────────┬───────────┬─────────────┬────────────╮
-│ Store        │ Category │ Avg Amount │ Frequency │ Occurrences │ Last       │
-├──────────────┼──────────┼────────────┼───────────┼─────────────┼────────────┤
-│ Seven Eleven │ Food     │     102.75 │ weekly    │           6 │ 2026-03-06 │
-│ Grab         │ Transport│     145.00 │ weekly    │           4 │ 2026-03-06 │
-╰──────────────┴──────────┴────────────┴───────────┴─────────────┴────────────╯
-  Total recurring: ~248 ฿/cycle
-```
-
-### 🏪 Store Ranking
-
-```bash
-python run.py stores
-```
-
-```
-                    🏪 Store Leaderboard
-╭─────┬──────────────┬──────────┬────────────┬────────╮
-│ #   │ Store        │ Category │      Total │ Visits │
-├─────┼──────────────┼──────────┼────────────┼────────┤
-│ 🥇  │ Lazada       │ Shopping │     890.00 │      1 │
-│ 🥈  │ Starbucks    │ Food     │     165.00 │      1 │
-│ 🥉  │ Grab         │ Transport│     150.00 │      1 │
-│ 4   │ Seven Eleven │ Food     │      85.50 │      1 │
-╰─────┴──────────────┴──────────┴────────────┴────────╯
-```
+<p align="center">
+  <img src="/assets/insights.png" alt="Insights Example" width="700">
+</p>
 
 ---
 
