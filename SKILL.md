@@ -272,23 +272,25 @@ python run.py search "Starbucks"
   1 result(s) found
 ```
 
-### Insights
+### Insights (with AI Alerts & Anomalies)
 
 ```bash
 python run.py insights
 ```
 
 ```
-  📊 Budget at 16%. On track for this month.
-  💡 Safe to spend up to 268 ฿/day for the remaining 25 days.
+   Safe to spend up to 268 ฿/day for the remaining 25 days.
   📌 'Shopping' dominates your spending (69% of total). Consider diversifying.
+  � ALERT: Price Spike! Shopping at 'Lazada' (890.00 ฿) is 150% above average.
+  🚨 ALERT: High Frequency! You visited 'Seven Eleven' 5 times in the last 7 days.
+  🎯 Goal Progress: 'New Laptop' is 11.1% complete (5,000/45,000 ฿).
+  � Saving Tip: Skip 3 'Food' visits to add ~450 ฿ to your 'New Laptop' goal!
   📉 Great job! Spending is down 59% compared to 2026-02.
-  💰 Single large expense: Lazada at 890 ฿ (69% of monthly total).
 
-  ℹ 5 insight(s) generated for 2026-03
+  ℹ 7 insight(s) generated for 2026-03
 ```
 
-> Each insight line starts with an emoji icon. Relay all insights to the user as-is.
+> Insights now include **Anomaly Detection** (Price Spikes, High Frequency) and **Goal Coaching** (Saving Tips). Relay these specific alerts to help the user save money.
 
 ### Compare
 
@@ -342,6 +344,30 @@ python run.py stores
 │ 4   │ Seven Eleven │ Food     │      85.50 │      1 │
 ╰─────┴──────────────┴──────────┴────────────┴────────╯
 ```
+
+### Manage Savings Goals
+
+```bash
+python run.py goal
+```
+
+```
+────────────────────────────────────────────────────────────
+  🦞 🎯 Savings Goals
+────────────────────────────────────────────────────────────
+
+  #1 New Laptop
+  ███░░░░░░░░░░░░░░░░░░░░░░░░░░░ 11.1%
+  Progress: 5,000.00 / 45,000.00 ฿
+  Target Date: 2026-12-31
+
+  #2 Vacation
+  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0.0%
+  Progress: 0.00 / 20,000.00 ฿
+  Target Date: 2026-06-30
+```
+
+> Use `goal --add "Name" --target 1000` to create goals and `goal --save 500 --to 1` to record progress.
 
 ### List
 
